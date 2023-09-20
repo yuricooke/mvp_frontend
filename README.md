@@ -1,4 +1,4 @@
-# #603010 Gererator
+# #603010 Generator
 
 Este pequeno projeto faz parte MVP da sprint **Desenvolvimento Full Stack Básico** 
 
