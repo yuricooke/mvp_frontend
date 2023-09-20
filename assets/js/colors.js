@@ -1,10 +1,21 @@
-/*
-BOTÕES MUDAR A COR
-*/
+/* ---
+colors.js
+Scrpits responsáveis pela atualiação da paleta, salvar a paleta, e inserir a paleta na lista
 
-/*
-  CAMPO INSERIR A COR DESEJADA
-  */
+1 - editar a cor
+2 - salvar a paleta
+3 - Funções dentro da tabela
+
+--- */
+
+
+let neutral = ""; // escopo global
+let primary = ""; // escopo global
+let accent = ""; // escopo global
+
+
+// 1 - editar a cor - inserir um valor
+
   const editColor = (colorId) => {
     const colorElement = document.getElementById(colorId);
     const currentColor = colorElement.textContent;
@@ -29,72 +40,74 @@ BOTÕES MUDAR A COR
       }
     } while (!validateColor(newColor));
   
-    // Update both the text content and the CSS custom property
+    // Atualizar text.content e css
     colorElement.textContent = newColor;
     changeColor(colorId, newColor);
   };
-  
-  
-  
 
+// 2 - mudar a cor - refresh
 const changeColor = (colorId, newColor) => {
   let color;
-  if (colorId === "neutral") {
-    color = newColor || generateNeutralColor();
-    neutral = color;
-    document.documentElement.style.setProperty("--neutral", color);
-    document.getElementById("neutral").textContent = neutral;
 
-    const neutralContrast = calculateContrastColor(neutral);
-    document.documentElement.style.setProperty(
-      "--neutral-contrast",
-      neutralContrast
-    );
+  if (newColor && validateColor(newColor)) {
+    color = newColor;
+  } else if (colorId === "neutral") {
+    color = generateNeutralColor();
   } else if (colorId === "primary") {
-    color = newColor || generateRandomColor();
-    primary = color;
-    document.documentElement.style.setProperty("--primary", color);
-    document.getElementById("primary").textContent = primary;
-
-    const primaryContrast = calculateContrastColor(primary);
-    document.documentElement.style.setProperty(
-      "--primary-contrast",
-      primaryContrast
-    );
+    color = generateRandomColor();
   } else if (colorId === "accent") {
-    color = newColor || generateRandomColor();
-    accent = color;
-    document.documentElement.style.setProperty("--accent", color);
-    document.getElementById("accent").textContent = accent;
-
-    const accentContrast = calculateContrastColor(accent);
-    document.documentElement.style.setProperty(
-      "--accent-contrast",
-      accentContrast
-    );
+    color = generateRandomColor();
   }
 
-  console.log(`New ${colorId}:`, color);
+  if (color) {
+    // Update the corresponding color variable and CSS property
+    if (colorId === "neutral") {
+      neutral = color;
+      document.getElementById("neutral").textContent = neutral;
+    } else if (colorId === "primary") {
+      primary = color;
+      document.getElementById("primary").textContent = primary;
+    } else if (colorId === "accent") {
+      accent = color;
+      document.getElementById("accent").textContent = accent;
+    }
+
+    // Set the CSS custom property for the color
+    document.documentElement.style.setProperty(`--${colorId}`, color);
+
+    // Calculate and set the contrast color
+    const contrastColor = calculateContrastColor(color);
+    document.documentElement.style.setProperty(`--${colorId}-contrast`, contrastColor);
+
+    // Atualize apenas a cor que foi alterada na paleta global
+    if (colorId === "neutral") {
+      palette[0] = neutral;
+    } else if (colorId === "primary") {
+      palette[1] = primary;
+    } else if (colorId === "accent") {
+      palette[2] = accent;
+    }
+
+    console.log(`New ${colorId}:`, color);
+  }
+
+  // Update the corresponding color in the palette array
 };
 
-
+// verificardo de valor
 const validateColor = (color) => {
     const colorPattern = /^#[A-Fa-f0-9]{6}$/;
     return colorPattern.test(color);
   };
   
-
-
-/*
-  BOTÕES SALVAR A COR
-  */
+// 3 - salvar a cor
 
 const saveColor = (colorVariable) => {
   const root = document.documentElement;
   const computedStyle = getComputedStyle(root);
   const colorValue = computedStyle.getPropertyValue(colorVariable).trim();
 
-  // Check if the color is already in the list
+  
   if (isColorInList(colorValue)) {
     alert(`A cor ${colorValue} já está na lista.`);
   } else {
@@ -114,6 +127,8 @@ const saveColor = (colorVariable) => {
   }
 };
 
+
+// Verificar se a cor já está salva na lista
 const isColorInList = (colorValue) => {
   var table = document.getElementById("myColorTable");
   var colorsInList = Array.from(table.querySelectorAll("td:nth-child(2)")).map(
@@ -122,9 +137,8 @@ const isColorInList = (colorValue) => {
   return colorsInList.includes(colorValue);
 };
 
-/*
-  INSERINDO A COR NA LISTA
-  */
+
+// 4 - inserir a cor na lista
 
 const insertList = (colorName, colorValue) => {
   console.log("Inserindo na lista:", colorName);
@@ -134,47 +148,55 @@ const insertList = (colorName, colorValue) => {
   var table = document.getElementById("myColorTable");
   var row = table.insertRow();
 
-  // Create and add the color display box to the first cell
+  // Display da cor na primeira coluna (index 0)
   var colorDisplayCell = row.insertCell(0);
   var colorDisplay = document.createElement("div");
   colorDisplay.style.height = "30px";
   colorDisplay.style.width = "30px";
   colorDisplay.style.backgroundColor = colorValue; // Set the background color
+  colorDisplay.style.border = "1px solid lightgray"; 
+
   colorDisplayCell.appendChild(colorDisplay);
 
-  // Create the color selection dropdown and pass the row
-  var colorSelect = createColorSelect(row);
 
-  // Insert "Nome" in the second cell (index 1)
+  // Nome na segunda coluna (index 1)
   var nomeCell = row.insertCell(1);
   nomeCell.textContent = item[0];
 
-  // Insert "Hex" in the third cell (index 2)
+  // Hex na terceira coluna (index 2)
   var hexCell = row.insertCell(2);
   hexCell.textContent = item[1];
 
 
-  // Insert delete button in the last cell (index -1)
+  // Delete na quarta coluna (index 3)
   insertCloseButton(row.insertCell(3));
 
-  // Insert the color selection dropdown in the cell with the 'select-color' ID
+
+
+  // selecionar a cor - dropdow
+  var colorSelect = createColorSelect(row);
+
+  // Selection dropdown para selecionar on inserir a cor. Última coluna (index -1)
   var colorSelectCell = row.insertCell(4);
   colorSelectCell.appendChild(colorSelect);
   removeElement();
 };
 
-// Function to create the color selection dropdown
+// 5 - funções dentro da tabela cor id="myColorTable"
+
+
+// Dropdown
 const createColorSelect = (row) => {
   const colorSelect = document.createElement("select");
 
-  // Create a placeholder option
+  // Placeholder "Opções"
   const placeholderOption = document.createElement("option");
   placeholderOption.text = "Opções";
-  placeholderOption.disabled = true; // Disable the placeholder option
-  placeholderOption.selected = true; // Select the placeholder option by default
+  placeholderOption.disabled = true; 
+  placeholderOption.selected = true; 
   colorSelect.appendChild(placeholderOption);
 
-  // Create options for the dropdown
+  // Opções do dropdown
   const options = [
     { text: "Neutral", value: "neutral" },
     { text: "Primary", value: "primary" },
@@ -188,10 +210,9 @@ const createColorSelect = (row) => {
     colorSelect.appendChild(opt);
   });
 
-  // Add an event listener to handle the dropdown selection
   colorSelect.addEventListener("change", () => {
     const selectedOption = colorSelect.value;
-    const hexValue = row.cells[2].textContent; // Get hex value from the third cell (index 2)
+    const hexValue = row.cells[2].textContent; 
     changeColor(selectedOption, hexValue);
   });
 
@@ -199,8 +220,7 @@ const createColorSelect = (row) => {
 };
 
 
-//removendo item da lista
-
+// remover da lista
 const removeElement = () => {
   let close = document.getElementsByClassName("close");
   // var table = document.getElementById('myTable');
@@ -217,6 +237,7 @@ const removeElement = () => {
     };
   }
 };
+
 const insertCloseButton = (parent) => {
   let span = document.createElement("span");
   let txt = document.createTextNode("\u00D7");
