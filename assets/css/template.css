@@ -115,3 +115,11 @@ Principais estilos do template
 .svg-icon-2 rect {
   fill: var(--accent);
 }
+
+/* Frame video */
+
+.frame {
+  border: 3px solid var(--accent);
+  margin: auto;
+  padding: 15px 10px;
+}
